@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Jitu Pro Trading Platform</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
+}
+
+header{
+background:#020617;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.logo{
+font-size:22px;
+font-weight:bold;
+color:#22c55e;
+}
+
+.menu a{
+color:white;
+margin-left:20px;
+text-decoration:none;
+}
+
+.dashboard{
+display:flex;
+flex-wrap:wrap;
+}
+
+.chart{
+flex:2;
+min-width:320px;
+padding:10px;
+}
+
+.side{
+flex:1;
+min-width:260px;
+background:#020617;
+padding:20px;
+}
+
+button,select,input{
+width:100%;
+padding:10px;
+margin-top:10px;
+border:none;
+border-radius:6px;
+}
+
+button{
+background:#22c55e;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+.signal{
+font-size:28px;
+font-weight:bold;
+margin-top:20px;
+}
+
+.card{
+background:#1e293b;
+padding:10px;
+margin-top:10px;
+border-radius:6px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+<div class="logo">🚀 Jitu Pro Trading</div>
+
+<div class="menu">
+<a href="#">Dashboard</a>
+<a href="#">Signals</a>
+<a href="#">Portfolio</a>
+<a href="#">Journal</a>
+</div>
+</header>
+
+<div class="dashboard">
+
+<div class="chart">
+<div id="chart"></div>
+</div>
+
+<div class="side">
+
+<select id="coin">
+<option value="bitcoin">BTC</option>
+<option value="ethereum">ETH</option>
+<option value="solana">SOL</option>
+</select>
+
+<button onclick="getPrice()">Analyze Market</button>
+
+<div class="signal" id="signal"></div>
+
+<div class="card" id="price"></div>
+<div class="card" id="trend"></div>
+<div class="card" id="target"></div>
+<div class="card" id="stop"></div>
+
+<div class="card">
+<h3>💰 Portfolio</h3>
+<input id="investment" placeholder="Investment Amount">
+<button onclick="calc()">Calculate</button>
+<div id="portfolio"></div>
+</div>
+
+<div class="card">
+<h3>📝 Trade Journal</h3>
+<input id="note" placeholder="Write trade note">
+<button onclick="saveNote()">Save</button>
+<ul id="notes"></ul>
+</div>
+
+</div>
+
+</div>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+
+<script>
+
+new TradingView.widget({
+width:"100%",
+height:500,
+symbol:"BINANCE:BTCUSDT",
+interval:"15",
+theme:"dark",
+style:"1",
+locale:"en",
+container_id:"chart"
+});
+
+async function getPrice(){
+
+let coin=document.getElementById("coin").value;
+
+let url=`https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd`;
+
+let res=await fetch(url);
+let data=await res.json();
+
+let price=data[coin].usd;
+
+window.currentPrice=price;
+
+document.getElementById("price").innerHTML="💰 Price: $"+price;
+
+analyze(price);
+
+}
+
+function analyze(price){
+
+let rsi=Math.floor(Math.random()*100);
+
+if(rsi<30){
+
+document.getElementById("signal").innerHTML="📈 BUY";
+
+document.getElementById("trend").innerHTML="Trend: Uptrend";
+
+document.getElementById("target").innerHTML="Target: "+(price*1.03).toFixed(2);
+
+document.getElementById("stop").innerHTML="Stop Loss: "+(price*0.97).toFixed(2);
+
+}
+
+else if(rsi>70){
+
+document.getElementById("signal").innerHTML="📉 SELL";
+
+document.getElementById("trend").innerHTML="Trend: Downtrend";
+
+document.getElementById("target").innerHTML="Target: "+(price*0.97).toFixed(2);
+
+document.getElementById("stop").innerHTML="Stop Loss: "+(price*1.03).toFixed(2);
+
+}
+
+else{
+
+document.getElementById("signal").innerHTML="⚠ HOLD";
+
+document.getElementById("trend").innerHTML="Trend: Sideways";
+
+document.getElementById("target").innerHTML="";
+document.getElementById("stop").innerHTML="";
+
+}
+
+}
+
+function calc(){
+
+let investment=document.getElementById("investment").value;
+
+let coins=investment/window.currentPrice;
+
+document.getElementById("portfolio").innerHTML="You can buy "+coins.toFixed(4)+" coins";
+
+}
+
+function saveNote(){
+
+let note=document.getElementById("note").value;
+
+let li=document.createElement("li");
+
+li.textContent=note;
+
+document.getElementById("notes").appendChild(li);
+
+}
+
+</script>
+
+</body>
+</html>
